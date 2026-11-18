@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: App — build, self-test, DMG (Apple silicon)
+    runs-on: macos-15          # arm64 runner, macOS 15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: swift --version && uname -m
+
+      - name: Debug build
+        run: |
+          swift build 2>&1 | tee build.log
+          n=$(grep -c ' warning: ' build.log || true)
+          echo "Compiler warnings: $n"
+          [ "$n" -eq 0 ] || echo "::warning::$n compiler warning(s) in the debug build"
+
+      - name: Self-test (logic checks on private pasteboards and temporary folders)
+        run: .build/debug/Pastly --self-test
+
+      - name: Release app and DMG (ad-hoc signed, not notarized — verifies the release script)
+        run: ./Scripts/release.sh
+
+      - name: Check the app bundle
+        run: |
+          app=build/Pastly.app
+          lipo -archs "$app/Contents/MacOS/Pastly" | grep -qx arm64
+          /usr/libexec/PlistBuddy -c "Print LSMinimumSystemVersion" "$app/Contents/Info.plist" | grep -qx 14.0
+          codesign --verify --strict "$app"
+          test -z "$(find "$app" -iname '*.sqlite*' -o -iname '*.pastly' -o -iname '*.pastestash')"
+          echo "arm64 only, macOS 14+, signature intact, no history files"
+
+  website:
+    name: Website — syntax, release API and site checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: JavaScript syntax
+        run: for f in website/main.js website/api/*.js Tests/website/*.js; do node --check "$f"; done
+
+      - name: Vercel configuration is valid JSON
+        run: node -e 'JSON.parse(require("fs").readFileSync("website/vercel.json", "utf8"))'
+
+      - name: Release API (offline, simulated GitHub and local fixtures)
+        run: node Tests/website/release-api.test.js
+
+      - name: Site checks (CSP hash, headers, links, images)
+        run: node Tests/website/site.test.js

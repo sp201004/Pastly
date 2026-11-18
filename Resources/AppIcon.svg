@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Pastly</title>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#23263A"/>
+  <g transform="rotate(-12 512 782)"><rect x="292" y="262" width="440" height="520" rx="60" fill="#CDB8F0"/></g>
+  <g transform="rotate(12 512 782)"><rect x="292" y="262" width="440" height="520" rx="60" fill="#FFB9A8"/></g>
+  <rect x="292" y="262" width="440" height="520" rx="60" fill="#FFF3DC"/>
+  <path d="M404 392 V700 M404 392 H520 A94 94 0 0 1 520 580 H404" fill="none" stroke="#23263A" stroke-width="78" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="330" y="370" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="396" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="422" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="448" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="474" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="500" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="526" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="552" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="578" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="604" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="630" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="656" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="682" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="708" width="380" height="9" fill="#FFF3DC"/><rect x="330" y="734" width="380" height="9" fill="#FFF3DC"/>
+  <rect x="422" y="224" width="180" height="88" rx="30" fill="#23263A"/>
+  <rect x="460" y="246" width="104" height="26" rx="13" fill="#A8E3C8"/>
+</svg>

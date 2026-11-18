@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pastly — A beautiful, native clipboard manager for macOS</title>
+  <meta name="description" content="Pastly remembers everything you copy on your Mac — text, links, code, colors, images, files, video and music — and brings it back with one shortcut. Free, open source and 100% local.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d1120" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pastly">
+  <meta property="og:title" content="Pastly — Copy once. Find it forever.">
+  <meta name="twitter:title" content="Pastly — A beautiful, native clipboard manager for macOS">
+  <meta property="og:description" content="A beautiful, native clipboard manager for macOS. Free, open source and 100% local.">
+  <meta name="twitter:description" content="A beautiful, native clipboard manager for macOS. Free, open source and 100% local.">
+  <meta property="og:image" content="img/list-light.png">
+  <meta property="og:image:alt" content="The Pastly clipboard history window with text, color, code, image and link clips.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="img/logo.svg">
+  <link rel="icon" href="img/favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <script>if (!/[?&]static\b/.test(location.search)) document.documentElement.classList.add("js")</script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pastly","operatingSystem":"macOS 14 or later (Apple silicon)",
+   "applicationCategory":"UtilitiesApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+   "description":"A beautiful, native clipboard manager for macOS. Free, open source and 100% local.","license":"https://opensource.org/licenses/MIT",
+   "processorRequirements":"Apple silicon (arm64)"}
+  </script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Pastly home">
+      <img src="img/logo.svg" alt="" width="30" height="30"><span>Pastly</span>
+    </a>
+    <nav id="nav-links" class="nav-links" aria-label="Main">
+      <a href="#playground">Try it</a>
+      <a href="#features">Features</a>
+      <a href="#shortcuts">Shortcuts</a>
+      <a href="#settings">Settings</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="icon-btn" data-link="repo" href="#open-source" aria-label="Pastly on GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>
+      </a>
+      <a class="btn btn-primary btn-small" data-link="download" href="#download">Download</a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu"><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap hero-inner reveal">
+    <p class="pill"><span class="pill-dot"></span>Open source · MIT · macOS 14+ · Apple silicon</p>
+    <h1>Copy once.<br><span class="grad">Find it forever.</span></h1>
+    <p class="lede">Pastly quietly remembers every text, link, snippet, color, image and file you copy — and hands it back the moment you press <kbd>⇧</kbd><kbd>⌘</kbd><kbd>V</kbd>. Everything stays on your Mac.</p>
+    <div class="cta-row center-row">
+      <a class="btn btn-primary" data-link="download" href="#download">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download for Mac
+      </a>
+      <a class="btn btn-ghost" data-link="repo" href="#open-source">View on GitHub</a>
+    </div>
+    <ul class="trust" aria-label="Highlights"><li>Free forever</li><li>No account</li><li>No tracking</li><li>100% local</li></ul>
+  </div>
+</section>
+
+<!-- Playground: the live app is the hero's visual -->
+<section class="stage-section" id="playground" aria-labelledby="pg-title">
+  <div class="wrap">
+    <div class="desk reveal">
+      <div class="desk-bar" aria-hidden="true">
+        <span class="desk-apple"></span><b>Notes</b><span>File</span><span>Edit</span><span>Format</span>
+        <span class="desk-gap"></span>
+        <span class="desk-icon"><img src="img/logo.svg" alt="" width="16" height="16"></span><span>9:41</span>
+      </div>
+      <div class="desk-body">
+        <div class="pg reveal">
+      <div class="pg-app" id="pg-app" role="application" aria-label="Pastly demo">
+        <div class="pg-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>
+          <input id="pg-query" type="search" placeholder="Search clips" autocomplete="off" aria-label="Search demo clips">
+        </div>
+        <div class="pg-tabs" id="pg-tabs" role="tablist" aria-label="Lists"></div>
+        <ul class="pg-list" id="pg-list" role="listbox" aria-label="Clips" aria-multiselectable="true"></ul>
+        <div class="pg-foot"><span><b>↩</b> Paste</span><span><b>Space</b> Preview</span><span><b>⌘A</b> All</span><span id="pg-count"></span></div>
+        <div class="pg-toast" id="pg-toast" role="status" aria-live="polite"></div>
+      </div>
+      <aside class="pg-preview" id="pg-preview" aria-live="polite" hidden></aside>
+      <div class="pg-target">
+        <div class="mac-bar"><i></i><i></i><i></i><span>Notes</span></div>
+        <div class="pg-note" id="pg-note"><p class="placeholder">Pasted clips land here.</p></div>
+      </div>
+      </div>
+      </div>
+    </div>
+    <div class="stage-caption reveal">
+      <p class="kicker">Hands-on</p>
+      <h2 id="pg-title">Clipboard history, right here.</h2>
+      <p>This little Pastly runs on this page. Click or use <kbd>↑</kbd><kbd>↓</kbd>, <kbd>Space</kbd> to preview, <kbd>↩</kbd> to paste, <kbd>⌘</kbd><kbd>A</kbd> to select all, <kbd>⌫</kbd> to delete and <kbd>⇥</kbd> to switch lists.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- Four beats -->
+<section class="section beats" aria-labelledby="beats-title">
+  <div class="wrap">
+    <h2 id="beats-title" class="center reveal">From copy to paste in four beats.</h2>
+    <ol class="beat-track reveal">
+      <li class="beat">
+        <span class="beat-num">01</span>
+        <h3>Copy</h3><p>Use ⌘C anywhere, like always. Nothing new to learn.</p>
+      </li>
+      <li class="beat">
+        <span class="beat-num">02</span>
+        <h3>Stash</h3><p>Every clip is kept — with its app, time, formatting and a real thumbnail.</p>
+      </li>
+      <li class="beat">
+        <span class="beat-num">03</span>
+        <h3>Find</h3><p>⇧⌘V, type a word, or press ⇥ to jump between lists and kinds.</p>
+      </li>
+      <li class="beat">
+        <span class="beat-num">04</span>
+        <h3>Paste</h3><p>Press ↩ and it lands where your cursor was. Or drag it out to any app.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- At a glance (original feature cards) -->
+<section class="section glance" id="features" aria-labelledby="glance-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 id="glance-title">Everything you copy, ready when you need it.</h2>
+      <p>Pastly lives in your menu bar and quietly saves every copy. Press <kbd>⇧</kbd><kbd>⌘</kbd><kbd>V</kbd> anywhere and it's all there.</p>
+    </div>
+    <div class="cards">
+      <article class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 4.5h6M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></div>
+        <h3>Every kind of clip</h3>
+        <p>Plain and rich text, links, images, files, HEX and rgb() colors — and code, detected and highlighted for you.</p>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></div>
+        <h3>Instant search</h3>
+        <p>Start typing to filter thousands of clips by text, title or source app. Tabs jump between kinds and lists.</p>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9.3l-4 4 1 5.7-5-2.8-5 2.8 1-5.7-4-4 5.5-.8z"/></svg></div>
+        <h3>Pinned &amp; Smart Lists</h3>
+        <p>Pin the snippets you reuse. Smart Lists fill themselves — “From Terminal”, “Work links”, “Today” — from rules you choose.</p>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 7h11M4 12h16M4 17h8"/><path d="m16 15 3 3-3 3"/></svg></div>
+        <h3>Paste your way</h3>
+        <p>Paste into the app you were using — Formatted or Plain, your choice for every paste — transformed (UPPER, trimmed, pretty JSON…), or several clips one by one.</p>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M12 5v14"/><path d="M6 9h3M6 12h3"/></svg></div>
+        <h3>Click to preview</h3>
+        <p>Click a clip or press Space to see all of it — full text, the image, a color's values — with when and where you copied it.</p>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Private by design</h3>
+        <p>Your history stays on this Mac. Password managers are skipped automatically, and you choose which apps to ignore.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<!-- Features -->
+<section class="section" id="showcase" aria-labelledby="features-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="kicker">Up close</p>
+      <h2 id="features-title">A clipboard that keeps up with you.</h2>
+    </div>
+    <div class="bento">
+      <article class="tile tile-wide reveal">
+        <div class="tile-copy">
+          <h3>Look before you leap</h3>
+          <p>Click a clip or press Space and a preview opens beside the list — highlighted code, full images, every color value, the app it came from and how often you've used it.</p>
+        </div>
+        <picture class="tile-shot shot-right">
+          <source srcset="img/preview-code-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="img/preview-code-light.webp" width="880" height="560" loading="lazy" alt="A Swift code clip open in the preview with syntax highlighting, next to the clip list.">
+        </picture>
+      </article>
+      <article class="tile reveal">
+        <div class="tile-copy"><h3>Colors, recognized</h3><p>HEX codes inside any text turn into swatches you can copy in one click.</p></div>
+        <picture class="tile-shot shot-crop-left">
+          <source srcset="img/preview-palette-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="img/preview-palette-light.webp" width="880" height="560" loading="lazy" alt="Preview listing four colors found in a text clip, each with a copy button.">
+        </picture>
+      </article>
+      <article class="tile reveal">
+        <div class="tile-copy"><h3>Pick many, paste once</h3><p>⌘-click, ⇧-click or ⌘A. Paste them together — or ⌘↩ to paste one by one, each ⌘V bringing the next.</p></div>
+        <picture class="tile-shot shot-top">
+          <source srcset="img/multi-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="img/multi-light.webp" width="470" height="560" loading="lazy" alt="Three clips selected at once; the footer reads 3 of 10 selected.">
+        </picture>
+      </article>
+      <article class="tile reveal">
+        <div class="tile-copy"><h3>Lists that sort themselves</h3><p>Smart Lists gather clips by app, kind, domain, words, patterns or date. Pin and file the rest by hand.</p></div>
+        <picture class="tile-shot shot-top">
+          <source srcset="img/smart-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="img/smart-light.webp" width="470" height="560" loading="lazy" alt="The From Xcode Smart List tab, showing only code copied from Xcode.">
+        </picture>
+      </article>
+      <article class="tile reveal">
+        <div class="tile-copy"><h3>Drag it anywhere</h3><p>Drop text into a search box, an image into an upload area, a file into Finder — each arrives as the real thing.</p></div>
+        <ul class="drop-list" aria-label="What arrives where">
+          <li><span>Text</span><span>a search box or document</span></li>
+          <li><span>Image</span><span>an upload area, as the image itself</span></li>
+          <li><span>Link</span><span>a browser tab or message</span></li>
+          <li><span>File</span><span>Finder or an attachment field</span></li>
+        </ul>
+      </article>
+      <article class="tile tile-wide reveal">
+        <div class="tile-copy">
+          <h3>Every kind of clip</h3>
+          <p>Plain and rich text, code, links, colors, images in their original format, files — and videos and music with a poster frame or cover art and a built-in player.</p>
+          <ul class="chips" aria-label="Supported clip types">
+            <li>Text</li><li>Rich text</li><li>Code</li><li>Links</li><li>Colors</li><li>PNG · JPEG · HEIC · GIF · WebP</li><li>PDFs &amp; files</li><li>Video</li><li>Music</li>
+          </ul>
+        </div>
+        <picture class="tile-shot shot-right">
+          <source srcset="img/preview-image-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="img/preview-image-light.webp" width="880" height="560" loading="lazy" alt="An image clip in the preview with its dimensions, format and source app.">
+        </picture>
+      </article>
+      <article class="tile reveal">
+        <div class="tile-copy"><h3>Found in a keystroke</h3><p>Type a few letters and the list narrows as you go — by text, title or the app it came from.</p></div>
+        <picture class="tile-shot shot-top">
+          <source srcset="img/search-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="img/search-light.webp" width="470" height="560" loading="lazy" alt="Searching for #F9 shows the two clips that contain it.">
+        </picture>
+      </article>
+      <article class="tile tile-full reveal">
+        <div class="tile-copy"><h3>Lives in your menu bar</h3><p>Click the icon to open it under the menu bar, right-click for recent clips and pause, ⌥-click to pause saving.</p></div>
+        <div class="menubar-mock" role="img" aria-label="Illustration of the Pastly menu bar icon and its menu">
+          <div class="mb"><span class="mb-apple"></span><span>Finder</span><span class="dim">File</span><span class="dim">Edit</span><span class="mb-gap"></span><span class="mb-icon"><img src="img/logo.svg" alt=""></span><span>9:41</span></div>
+          <ul class="mb-menu">
+            <li>Open Pastly <em>⇧⌘V</em></li><li class="sub">Recent Clips</li><li class="sep"></li>
+            <li>Pause Saving</li><li>Ignore Next Copy</li><li>Clear History…</li><li class="sep"></li><li>Settings… <em>⌘,</em></li>
+          </ul>
+          <p class="mock-note">Illustration</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Shortcuts (original list) -->
+<section class="section" id="shortcuts" aria-labelledby="keys-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="kicker">Keyboard</p>
+      <h2 id="keys-title">Your hands stay on the keys.</h2>
+      <p>Every action has a shortcut, and the global ones are yours to change in Settings.</p>
+    </div>
+    <div class="keylist reveal">
+      <div class="key-row"><span class="combo"><kbd>⇧</kbd><kbd>⌘</kbd><kbd>V</kbd></span><span>Open clipboard history from any app</span></div>
+      <div class="key-row"><span class="combo"><kbd>↩</kbd></span><span>Paste the highlighted clip where your cursor was</span></div>
+      <div class="key-row"><span class="combo"><kbd>⇧</kbd><kbd>↩</kbd></span><span>Paste in the other format (Plain ↔ Formatted)</span></div>
+      <div class="key-row"><span class="combo"><kbd>⌘</kbd><kbd>1</kbd>–<kbd>9</kbd></span><span>Paste clip 1 to 9</span></div>
+      <div class="key-row"><span class="combo"><kbd>⌘</kbd><kbd>A</kbd></span><span>Select every clip in the list</span></div>
+      <div class="key-row"><span class="combo"><kbd>⌘</kbd><kbd>↩</kbd></span><span>Paste the selection one by one</span></div>
+      <div class="key-row"><span class="combo"><kbd>Space</kbd></span><span>Open or close the preview</span></div>
+      <div class="key-row"><span class="combo"><kbd>⌘</kbd><kbd>P</kbd></span><span>Pin or unpin</span></div>
+      <div class="key-row"><span class="combo"><kbd>⌘</kbd><kbd>E</kbd></span><span>Edit the text, or name the clip</span></div>
+      <div class="key-row"><span class="combo"><kbd>⌫</kbd> <kbd>⌘</kbd><kbd>Z</kbd></span><span>Delete selected · undo</span></div>
+      <div class="key-row"><span class="combo"><kbd>⇥</kbd></span><span>Switch between lists</span></div>
+      <div class="key-row"><span class="combo"><kbd>esc</kbd></span><span>Close</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Settings tour -->
+<section class="section settings" id="settings" aria-labelledby="settings-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="kicker">Make it yours</p>
+      <h2 id="settings-title">Seven sections. Every switch does something.</h2>
+      <p>Real screenshots of Pastly Settings.</p>
+    </div>
+    <div class="tour reveal">
+      <div class="tour-tabs" role="tablist" aria-label="Settings sections">
+        <button role="tab" aria-selected="true" data-tab="general"><b>General</b><span>Login, monitoring, paste format, history limits</span></button>
+        <button role="tab" aria-selected="false" data-tab="appearance"><b>Appearance</b><span>Theme, accent, density, corners, sounds, preview</span></button>
+        <button role="tab" aria-selected="false" data-tab="shortcuts"><b>Shortcuts</b><span>Global keys with conflict checks, quick paste</span></button>
+        <button role="tab" aria-selected="false" data-tab="lists"><b>Lists</b><span>Pinned, Smart Lists, your lists — reorder, recolor</span></button>
+        <button role="tab" aria-selected="false" data-tab="privacy"><b>Privacy</b><span>Ignored apps, keywords, patterns, kinds, retention</span></button>
+        <button role="tab" aria-selected="false" data-tab="backup"><b>Backup</b><span>Export, import, automatic backups, restore</span></button>
+        <button role="tab" aria-selected="false" data-tab="about"><b>About</b><span>Version, updates, license, changelog</span></button>
+      </div>
+      <div class="tour-shot" role="tabpanel" aria-live="polite">
+        <picture>
+          <source id="tour-dark" srcset="img/settings-general-dark.webp" media="(prefers-color-scheme: dark)">
+          <img id="tour-img" src="img/settings-general-light.webp" width="600" height="572" loading="lazy" alt="Pastly Settings, General section.">
+        </picture>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Privacy -->
+<section class="section privacy" id="privacy" aria-labelledby="privacy-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="kicker">Privacy &amp; security</p>
+      <h2 id="privacy-title">Private by default, not by setting.</h2>
+      <p>No servers, no account, no analytics. Here's exactly what happens to what you copy.</p>
+    </div>
+    <div class="ledger reveal">
+      <div class="ledger-col">
+        <h3><span class="dot ok"></span>Kept — on this Mac only</h3>
+        <ul>
+          <li>Your clips, in one database in <code>~/Library/Application Support/Pastly</code></li>
+          <li>Folder and files readable only by your macOS account (0700 / 0600)</li>
+          <li>Images in their original format, next to the database</li>
+          <li>Backups only where you choose to save them</li>
+        </ul>
+      </div>
+      <div class="ledger-col">
+        <h3><span class="dot no"></span>Never kept</h3>
+        <ul>
+          <li>Anything a password manager marks concealed or temporary — 1Password, Bitwarden, Apple Passwords and others</li>
+          <li>Copies from apps you exclude</li>
+          <li>Text matching your keywords or patterns, and kinds you switch off</li>
+          <li>Optionally: card numbers, one-time codes, API keys and tokens</li>
+        </ul>
+      </div>
+      <div class="ledger-col">
+        <h3><span class="dot off"></span>Never sent</h3>
+        <ul>
+          <li>No cloud sync — on purpose</li>
+          <li>No telemetry or crash reporting</li>
+          <li>The only network request: an optional update check that asks GitHub for the latest release number</li>
+        </ul>
+      </div>
+    </div>
+    <p class="fine center reveal">You can also cap how many items are kept, delete old ones automatically, clear history when Pastly quits, or pause saving at any time.</p>
+  </div>
+</section>
+
+<!-- Open source -->
+<section class="section" id="open-source" aria-labelledby="os-title">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="kicker">Open source</p>
+      <h2 id="os-title">Read every line. Change any of them.</h2>
+    </div>
+    <div class="os-grid reveal">
+      <a class="os-card" data-link="repo" href="#open-source">
+        <h3>Source code</h3><p>Swift and SwiftUI, no third-party dependencies. Builds with Apple's free Command Line Tools.</p>
+        <span class="os-meta" data-repo-stats>GitHub →</span>
+      </a>
+      <a class="os-card" data-link="license" href="#open-source">
+        <h3>MIT License</h3><p>Use it, fork it, ship it — just keep the notice.</p><span class="os-meta">Read the license →</span>
+      </a>
+      <a class="os-card" data-link="contributing" href="#open-source">
+        <h3>Contribute</h3><p>Fixes and features are welcome. Start with the contributing guide.</p><span class="os-meta">CONTRIBUTING.md →</span>
+      </a>
+      <a class="os-card" data-link="issues" href="#open-source">
+        <h3>Report an issue</h3><p>Found a bug or have an idea? Open an issue with the steps to reproduce.</p><span class="os-meta">Issue tracker →</span>
+      </a>
+    </div>
+    <div class="roadmap reveal">
+      <h3>On the roadmap</h3>
+      <p class="fine">Not built yet — listed so you know what's coming, not what's there.</p>
+      <ul>
+        <li>Snippets with placeholders</li><li>Link previews (titles and icons)</li><li>Crop and rotate images</li>
+        <li>Automatic in-app updates</li><li>Optional database encryption</li><li>Shortcuts app actions</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Download -->
+<section class="section download" id="download" aria-labelledby="dl-title">
+  <div class="wrap dl-grid">
+    <div class="reveal">
+      <p class="kicker">Download</p>
+      <h2 id="dl-title">Get Pastly for Mac.</h2>
+      <div class="release" id="release" aria-live="polite" aria-busy="true">
+        <div class="release-loading"><span class="shimmer w60"></span><span class="shimmer w40"></span></div>
+      </div>
+      <ul class="reqs" aria-label="System requirements">
+        <li>Apple silicon Mac (M1 or newer)</li><li>macOS 14 Sonoma or newer</li>
+      </ul>
+    </div>
+    <div class="reveal">
+      <div id="install">
+        <!-- Shown by default: building from source. -->
+        <ol class="steps" id="install-source" aria-label="Install from source">
+          <li><b>Get the tools.</b> Install Apple's free Command Line Tools: <code>xcode-select --install</code>.</li>
+          <li><b>Build and install.</b> Run the commands below; they build Pastly and copy it to Applications.</li>
+          <li><b>Turn on pasting.</b> Allow Pastly in System Settings → Privacy &amp; Security → Accessibility so ↩ and double-click can paste for you.</li>
+        </ol>
+        <!-- Shown only when the release API offers a checked DMG. -->
+        <ol class="steps" id="install-dmg" aria-label="Install the downloaded app" hidden>
+          <li><b>Check and install.</b> Optionally compare the file with the SHA-256 shown here (<code>shasum -a 256 Pastly.dmg</code>), then open <code>Pastly.dmg</code> and drag Pastly to Applications.</li>
+          <li><b>Allow the first launch.</b> Pastly isn't notarized by Apple yet, so macOS blocks it the first time: open it once, then choose <b>Open Anyway</b> in System Settings → Privacy &amp; Security and confirm.</li>
+          <li><b>Turn on pasting.</b> Allow Pastly in System Settings → Privacy &amp; Security → Accessibility so ↩ and double-click can paste for you.</li>
+        </ol>
+        <p class="fine">A new installation starts with an empty history, stored only on your Mac in <code>~/Library/Application Support/Pastly</code>.</p>
+      </div>
+      <div class="code">
+        <p class="code-title">Or build it yourself</p>
+        <pre id="build-cmd"><code>git clone https://github.com/<span data-repo-text>your-github-username/Pastly</span>.git
+cd Pastly
+./Scripts/build.sh --install</code></pre>
+        <button class="copy" data-copy="build-cmd" aria-label="Copy build commands">Copy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Changelog -->
+<section class="section" id="changelog" aria-labelledby="cl-title">
+  <div class="wrap narrow">
+    <div class="section-head reveal">
+      <p class="kicker">Changelog</p>
+      <h2 id="cl-title">What's new.</h2>
+    </div>
+    <ol class="timeline reveal">
+      <li><span class="ver">0.7.0</span><div><h3>Open-source project &amp; fixes</h3><p>A complete feature guide, contributor docs and a security policy; a corrected shortcut hint in the welcome message; and paste one by one now copies the first clip when Accessibility permission is missing.</p></div></li>
+      <li><span class="ver">0.6.0</span><div><h3>Native drag &amp; drop, media, Finder images</h3><p>Drags deliver real text, images, links and files to any app or browser, with a complete drag card. Images copied in Finder get real thumbnails; videos and music get previews and a player; HEX colors inside text are recognized; exclusion rules can be switched on and off.</p></div></li>
+      <li><span class="ver">0.5.0</span><div><h3>Seven-section Settings</h3><p>General, Appearance, Shortcuts, Lists, Privacy, Backup and About — accent colors, conflict-checked shortcuts, automatic backups and restore, update check.</p></div></li>
+      <li><span class="ver">0.4.0</span><div><h3>Menu bar window</h3><p>Compact window with tabs, preview, code detection, Smart Lists and the one-by-one paste queue.</p></div></li>
+      <li><span class="ver">0.3.0</span><div><h3>Selection</h3><p>⌘A, ⇧/⌘-click, delete with undo, ⌘V pastes what you selected; native copy sound and animation.</p></div></li>
+    </ol>
+    <p class="center"><a data-link="changelog" href="#changelog">Full changelog →</a></p>
+  </div>
+</section>
+
+<!-- FAQ (original, restored) -->
+<section class="section" id="faq" aria-labelledby="faq-title">
+  <div class="wrap narrow">
+    <div class="section-head reveal">
+      <p class="kicker">FAQ</p>
+      <h2 id="faq-title">Good to know.</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Is Pastly really free?</summary>
+        <p>Yes — every feature, for everyone, with no trial, tiers or subscription. It's open source, so it will stay that way.</p>
+      </details>
+      <details>
+        <summary>Why does macOS warn me the first time I open Pastly?</summary>
+        <p>Apple only verifies apps from paid developer accounts. Pastly is built without one so it can stay free. Open it once, then choose <strong>Open Anyway</strong> in System Settings → Privacy &amp; Security and confirm with Touch ID or your password. On macOS 14 you can also Control-click Pastly in Applications and choose <strong>Open</strong>. Or run <code>xattr -dr com.apple.quarantine /Applications/Pastly.app</code> in Terminal. You only need to do this the first time.</p>
+      </details>
+      <details>
+        <summary>Why does it need Accessibility permission?</summary>
+        <p>To paste for you. After you pick a clip, Pastly presses <kbd>⌘</kbd><kbd>V</kbd> in the app you were using, and the paste queue watches for your <kbd>⌘</kbd><kbd>V</kbd>. Without the permission, it simply copies the clip and you paste it yourself.</p>
+      </details>
+      <details>
+        <summary>Where does Pastly keep my clips, and how do I erase them?</summary>
+        <p>In <code>~/Library/Application Support/Pastly</code> on your Mac. Clear it from the menu bar icon (right-click → Clear History), or set Pastly to keep only a number of clips or delete old ones automatically in Settings.</p>
+      </details>
+      <details>
+        <summary>Does it sync between my Macs?</summary>
+        <p>No, on purpose — nothing leaves your Mac. To move your history, use Settings → Backup → Export, then Import on the other Mac.</p>
+      </details>
+      <details>
+        <summary>Which Macs does it run on?</summary>
+        <p>Apple silicon Macs only (M1 or newer), running macOS 14 Sonoma or newer.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Closing -->
+<section class="closing">
+  <div class="wrap closing-inner reveal">
+    <img src="img/logo.svg" alt="" width="88" height="88">
+    <h2>Never lose a copy again.</h2>
+    <div class="cta-row center-row">
+      <a class="btn btn-primary" data-link="download" href="#download">Download for Mac</a>
+      <a class="btn btn-ghost" data-link="repo" href="#open-source">Star on GitHub</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="#top"><img src="img/logo.svg" alt="" width="28" height="28"><span>Pastly</span></a>
+      <p>A beautiful, native clipboard manager for macOS.</p>
+    </div>
+    <nav aria-label="Product"><h4>Product</h4><a href="#features">Features</a><a href="#settings">Settings</a><a href="#privacy">Privacy</a><a href="#download">Download</a></nav>
+    <nav aria-label="Resources"><h4>Resources</h4><a data-link="docs" href="#faq">Documentation</a><a data-link="changelog" href="#changelog">Changelog</a><a data-link="releases" href="#download">Releases</a><a href="#faq">FAQ</a></nav>
+    <nav aria-label="Open source"><h4>Open source</h4><a data-link="repo" href="#open-source">GitHub</a><a data-link="license" href="#open-source">MIT License</a><a data-link="contributing" href="#open-source">Contributing</a><a data-link="issues" href="#open-source">Report an issue</a><a data-link="security" href="#open-source">Security</a></nav>
+  </div>
+  <div class="wrap footer-base"><p>Pastly is free software. Made for Apple silicon Macs with macOS 14 and later.</p></div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+# --- Build output (SwiftPM, scripts) ---
+.build/
+build/
+*.iconset/
+*.dmg
+*.app/
+*.dSYM/
+*.xcarchive/
+DerivedData/
+
+# --- Web tooling (none today; guards future website tooling) ---
+node_modules/
+
+# --- Swift / Xcode / IDEs ---
+.swiftpm/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+*.xcuserstate
+.vscode/
+.idea/
+*.swp
+*~
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon?
+
+# --- Signing material (never commit) ---
+.signing
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+*.keychain
+*.keychain-db
+*.pem
+*.key
+*.p8
+.netrc
+
+# --- Local environment and secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Local data, logs, temp files ---
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.pastly
+*.pastestash
+*.log
+*.tmp
+*.bak
+*.orig
+tmp/
+
+# --- Private notes kept outside version control ---
+PLAN.md
+CLAUDE.md
+.claude/
+
+# --- Vercel CLI (local project link) ---
+.vercel/
