@@ -14,7 +14,7 @@ paid Apple Developer Program membership, which the project doesn't have.
 | DMG signature | None |
 | Notarization | None, and no ticket is stapled |
 | Gatekeeper (`spctl`) | **Rejected.** macOS blocks the first launch until the user approves it |
-| Integrity | Every DMG ships with `Pastly.dmg.sha256`. The website offers a DMG only after the published checksum and its own SHA-256 of the file agree |
+| Integrity | Every DMG ships with a `.sha256` file of the same name (for example `Pastly-v0.7.1.dmg.sha256`). The website offers a DMG only after the published checksum and its own SHA-256 of the file agree |
 
 A self-signed or ad-hoc signature proves only that the app wasn't changed after it was signed. It says nothing
 about who signed it, and Apple hasn't scanned it. A matching SHA-256 proves only that the download is the file the
@@ -49,7 +49,8 @@ the same certificate, and keep `.signing/` backed up and private: it's git-ignor
    node Tests/website/release-api.test.js && node Tests/website/site.test.js
    ```
    Then run the real-app checks in [CONTRIBUTING.md](CONTRIBUTING.md#tests) for paste and drag changes.
-4. **Build.** `./Scripts/release.sh` creates `build/Pastly.dmg` and `build/Pastly.dmg.sha256`, mounts the DMG and
+4. **Build.** `./Scripts/release.sh` creates `build/Pastly-v<version>.dmg` and `build/Pastly-v<version>.dmg.sha256`, named
+   automatically from `CFBundleName` and `CFBundleShortVersionString` in `Resources/Info.plist`. It mounts the DMG and
    checks it. Among the checks: signature intact, app identical to the build, checksum matches, and no clipboard
    history, database or backup inside. It then prints a report on architecture, minimum macOS, signature,
    notarization and Gatekeeper. Every check must pass.
@@ -59,11 +60,11 @@ the same certificate, and keep `.signing/` backed up and private: it's git-ignor
 6. **Tag and publish.** Commit, tag `vX.Y.Z`, push, then create the GitHub release:
    - Tag `vX.Y.Z`, title `Pastly X.Y.Z`. For the notes, paste the output of `./Scripts/release-notes.sh`: the
      changelog section, the first-launch steps, the actual signing status and the checksum.
-   - Attach **both** `Pastly.dmg` and `Pastly.dmg.sha256`, unrenamed (the checksum line names the file).
+   - Attach **both** `Pastly-vX.Y.Z.dmg` and `Pastly-vX.Y.Z.dmg.sha256`, unrenamed (the checksum line names the file).
    - Leave *Set as a pre-release* off for a stable release. Turn it on for experimental builds: the website then
      lists them separately and never makes them the default download.
 7. **Verify.** Within about 5 minutes the website shows the new version. Check `/api/latest` (`"integrity":
-   "passed"`), click **Download**, compare `shasum -a 256 Pastly.dmg` with the page, and open the app once on a
+   "passed"`), click **Download**, compare `shasum -a 256 Pastly-vX.Y.Z.dmg` with the page, and open the app once on a
    second Mac.
 
 ## Plan: Developer ID signing and notarization (needs a membership)

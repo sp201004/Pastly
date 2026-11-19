@@ -1,6 +1,8 @@
 #!/bin/bash
-# Builds build/Pastly.app (Release) and build/Pastly.dmg for installing on another Mac.
-# Repeatable: run it whenever you need a fresh DMG.
+# Builds build/Pastly.app (Release) and the release DMG for installing on another Mac, named after the app and
+# the version in Resources/Info.plist: build/<CFBundleName>-v<CFBundleShortVersionString>.dmg, for example
+# build/Pastly-v0.7.1.dmg, plus build/Pastly-v0.7.1.dmg.sha256 (attach both to the GitHub release).
+# Repeatable: run it whenever you need a fresh DMG. DMGs of other versions in build/ are listed, never deleted.
 #
 #   ./Scripts/release.sh
 #
@@ -15,10 +17,17 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-APP="build/Pastly.app"
-DMG="build/Pastly.dmg"
+# Names come from the project configuration, so every release is named consistently and automatically.
+APP_NAME=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" Resources/Info.plist)
+VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Resources/Info.plist)
+BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" Resources/Info.plist)
+[[ "$APP_NAME" =~ ^[A-Za-z][A-Za-z0-9]*$ ]] || { echo "✗ CFBundleName \"$APP_NAME\" isn't a plain app name"; exit 1; }
+[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "✗ CFBundleShortVersionString \"$VERSION\" isn't a version like 1.2.0"; exit 1; }
+[[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || { echo "✗ CFBundleVersion \"$BUILD_NUMBER\" isn't a build number"; exit 1; }
+APP="build/$APP_NAME.app"
+DMG="build/$APP_NAME-v$VERSION.dmg"
 STAGE="build/dmg-staging"
-VOLNAME="Pastly"
+VOLNAME="$APP_NAME"
 PROFILE="${NOTARY_PROFILE:-pastly-notary}"
 
 # ---------- 1. Developer ID available? ----------
@@ -60,7 +69,7 @@ fi
 # ---------- 3. Notarize + staple the app (only with real credentials) ----------
 if [ $CAN_NOTARIZE -eq 1 ]; then
   echo "▸ Notarizing the app…"
-  ZIP="build/Pastly-notarize.zip"
+  ZIP="build/$APP_NAME-notarize.zip"
   rm -f "$ZIP"; ditto -c -k --keepParent "$APP" "$ZIP"
   notarize "$ZIP"; rm -f "$ZIP"
   xcrun stapler staple "$APP"
@@ -70,14 +79,13 @@ fi
 echo "▸ Creating ${DMG}…"
 rm -rf "$STAGE" "$DMG"
 mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/Pastly.app"            # ditto keeps signatures, attributes and permissions
+ditto "$APP" "$STAGE/$APP_NAME.app"         # ditto keeps signatures, attributes and permissions
 ln -s /Applications "$STAGE/Applications"
-VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
 sed "s/{{VERSION}}/$VERSION/g" Resources/DMG-ReadMe.txt > "$STAGE/Read Me — Setup Guide.txt"   # setup steps for testers
 cp Resources/AppIcon.icns "$STAGE/.VolumeIcon.icns"
 # The "custom icon" flag must be set on the mounted volume itself (hdiutil -srcfolder drops it),
 # so build a writable image first, flag its root, then compress it.
-RW="build/Pastly-rw.dmg"
+RW="build/$APP_NAME-rw.dmg"
 rm -f "$RW"
 hdiutil create -volname "$VOLNAME" -srcfolder "$STAGE" -fs HFS+ -format UDRW -ov "$RW" >/dev/null
 RWMNT=$(mktemp -d /tmp/pastly-rw.XXXXXX)
@@ -106,19 +114,25 @@ trap 'hdiutil detach "$MNT" -quiet >/dev/null 2>&1 || true; rmdir "$MNT" 2>/dev/
 check() { if eval "$2"; then echo "  ✓ $1"; else echo "  ✗ $1"; FAILED=1; fi; }
 FAILED=0
 check "DMG mounts (volume \"$VOLNAME\")"                  "[ -d '$MNT' ] && diskutil info '$MNT' 2>/dev/null | grep -q 'Volume Name: *$VOLNAME'"
-check "Pastly.app is inside the DMG"                  "[ -x '$MNT/Pastly.app/Contents/MacOS/Pastly' ]"
+check "DMG is named $(basename "$DMG") (app name + version)" "[ \"\$(basename '$DMG')\" = '$APP_NAME-v$VERSION.dmg' ]"
+check "$APP_NAME.app is inside the DMG"                  "[ -x '$MNT/$APP_NAME.app/Contents/MacOS/$APP_NAME' ] && [ \"\$(ls -d '$MNT'/*.app | xargs -n1 basename)\" = '$APP_NAME.app' ]"
+check "App inside is version $VERSION (build $BUILD_NUMBER)" "[ \"\$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' '$MNT/$APP_NAME.app/Contents/Info.plist')\" = '$VERSION' ] && [ \"\$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' '$MNT/$APP_NAME.app/Contents/Info.plist')\" = '$BUILD_NUMBER' ]"
 check "Applications shortcut points to /Applications"     "[ \"\$(readlink '$MNT/Applications')\" = /Applications ]"
 check "Setup guide is included (Read Me — Setup Guide.txt)" "grep -q 'Pastly $VERSION — Setup Guide' '$MNT/Read Me — Setup Guide.txt'"
-check "App in the DMG has an intact signature"            "codesign --verify --strict '$MNT/Pastly.app' 2>/dev/null"
-check "App in the DMG is identical to build/Pastly.app" "diff -rq '$APP' '$MNT/Pastly.app' >/dev/null"
+check "App in the DMG has an intact signature"            "codesign --verify --strict '$MNT/$APP_NAME.app' 2>/dev/null"
+check "App in the DMG is identical to $APP" "diff -rq '$APP' '$MNT/$APP_NAME.app' >/dev/null"
+INSTALL_TEST=$(mktemp -d /tmp/pastly-install.XXXXXX)
+check "Installs: copies out like a drag to Applications, still intact" "ditto '$MNT/$APP_NAME.app' '$INSTALL_TEST/$APP_NAME.app' && codesign --verify --strict --deep '$INSTALL_TEST/$APP_NAME.app' 2>/dev/null && plutil -lint -s '$INSTALL_TEST/$APP_NAME.app/Contents/Info.plist' && [ -x '$INSTALL_TEST/$APP_NAME.app/Contents/MacOS/$APP_NAME' ]"
+rm -rf "$INSTALL_TEST"
 check "Volume uses the Pastly icon"                   "cmp -s '$MNT/.VolumeIcon.icns' Resources/AppIcon.icns && GetFileInfo -aC '$MNT' 2>/dev/null | grep -q 1"
 check "SHA-256 checksum file matches the DMG"            "(cd \"$(dirname "$DMG")\" && shasum -a 256 -c \"$(basename "$DMG").sha256\" >/dev/null)"
 check "No clipboard history, database or backup inside"   "[ -z \"\$(find '$MNT' \\( -iname '*.sqlite*' -o -iname '*-wal' -o -iname '*-shm' -o -iname '*.db' -o -iname '*.pastly' -o -iname '*.pastestash' -o -iname '*.plist' ! -path '*/Contents/Info.plist' \\) -print 2>/dev/null)\" ]"
 hdiutil imageinfo "$DMG" | grep -q "Format: UDZO" && echo "  ✓ Compressed UDZO format" || { echo "  ✗ Not UDZO"; FAILED=1; }
 
-ARCHS=$(lipo -archs "$APP/Contents/MacOS/Pastly")
+ARCHS=$(lipo -archs "$APP/Contents/MacOS/$APP_NAME")
 MINOS=$(/usr/libexec/PlistBuddy -c "Print LSMinimumSystemVersion" "$APP/Contents/Info.plist")
-VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
+BUILT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist")
+[ "$BUILT_VERSION" = "$VERSION" ] || { echo "  ✗ Built app is version $BUILT_VERSION, but the DMG is named for $VERSION"; FAILED=1; }
 AUTHORITY=$(codesign -dvv "$APP" 2>&1 | sed -n 's/^Authority=//p' | head -1)
 SIGKIND=$(codesign -dv "$APP" 2>&1 | grep -q "Signature=adhoc" && echo "ad-hoc" || echo "${AUTHORITY:-unknown}")
 TEAM=$(codesign -dv "$APP" 2>&1 | sed -n 's/^TeamIdentifier=//p')
@@ -127,7 +141,7 @@ GK_DMG=$(spctl --assess --type open --context context:primary-signature --verbos
 STAPLED=$(xcrun stapler validate "$APP" >/dev/null 2>&1 && echo yes || echo no)
 
 echo
-echo "================ Pastly $VERSION — release report ================"
+echo "================ $APP_NAME $VERSION — release report ================"
 echo "DMG:            $(cd "$(dirname "$DMG")" && pwd)/$(basename "$DMG")  ($(du -h "$DMG" | cut -f1 | tr -d ' '))"
 echo "Architecture:   $ARCHS   (Apple silicon: $(echo "$ARCHS" | grep -qw arm64 && echo yes || echo no); Intel: $(echo "$ARCHS" | grep -qw x86_64 && echo yes || echo no))"
 echo "Minimum macOS:  $MINOS"
@@ -143,4 +157,9 @@ if [ $CAN_NOTARIZE -eq 0 ]; then
   echo "⚠ Not notarized: on another Mac, macOS will block the first launch until the user approves it"
   echo "  in System Settings → Privacy & Security → Open Anyway."
 fi
+OTHER_DMGS=$(cd build && ls -1 *.dmg 2>/dev/null | grep -vxF "$(basename "$DMG")" || true)
+if [ -n "$OTHER_DMGS" ]; then
+  echo "ℹ Other DMGs in build/ (older builds — not this release, left untouched):"; echo "$OTHER_DMGS" | sed 's/^/    /'
+fi
+echo "Release files:  $DMG and $DMG.sha256"
 [ $FAILED -eq 0 ] || { echo "✗ Some checks failed (see above)."; exit 1; }

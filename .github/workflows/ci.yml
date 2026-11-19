@@ -44,7 +44,11 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print LSMinimumSystemVersion" "$app/Contents/Info.plist" | grep -qx 14.0
           codesign --verify --strict "$app"
           test -z "$(find "$app" -iname '*.sqlite*' -o -iname '*.pastly' -o -iname '*.pastestash')"
-          echo "arm64 only, macOS 14+, signature intact, no history files"
+          name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" Resources/Info.plist)
+          version=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Resources/Info.plist)
+          test -f "build/$name-v$version.dmg"
+          (cd build && shasum -a 256 -c "$name-v$version.dmg.sha256")
+          echo "arm64 only, macOS 14+, signature intact, no history files, build/$name-v$version.dmg verified"
 
   website:
     name: Website — syntax, release API and site checks

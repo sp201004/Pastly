@@ -138,6 +138,7 @@
        </div>
        ${checksumBlock(d, "dmg-sha")}${notesBlock(r)}`);
     $$('[data-link="download"]').forEach((a) => (a.href = d.url));
+    $$("[data-dmg-name]").forEach((el) => (el.textContent = d.name));   // e.g. Pastly-v0.7.1.dmg in the install steps
   }
 
   function showSourceOnly(r, dmgFailedCheck) {

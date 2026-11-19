@@ -74,7 +74,7 @@ A few design rules that keep Pastly predictable — please preserve them:
 swift build                     # debug → .build/debug/Pastly
 ./Scripts/build.sh              # release app → build/Pastly.app
 ./Scripts/build.sh --install    # build and copy to /Applications
-./Scripts/release.sh            # build/Pastly.dmg + .sha256, verified, with a release report
+./Scripts/release.sh            # build/Pastly-v<version>.dmg + .sha256, verified, with a release report
 ```
 
 Builds must finish with **no warnings**.

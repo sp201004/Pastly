@@ -67,11 +67,11 @@ The repository must be public: GitHub's API returns 404 for a private repository
 ## Publishing a release the site can offer
 
 ```bash
-./Scripts/release.sh          # → build/Pastly.dmg and build/Pastly.dmg.sha256 (verified)
+./Scripts/release.sh          # → build/Pastly-v<version>.dmg and its .sha256 (verified), e.g. Pastly-v0.7.1.dmg
 ```
 
-Create a GitHub release with a tag like `v0.7.0`, paste the release notes, attach **both** `Pastly.dmg` and
-`Pastly.dmg.sha256`, and publish it. Don't tick *Set as a pre-release* for a stable release. Renaming the DMG means
+Create a GitHub release with a tag like `v0.7.0`, paste the release notes, attach **both** `Pastly-vX.Y.Z.dmg` and
+`Pastly-vX.Y.Z.dmg.sha256`, and publish it. Don't tick *Set as a pre-release* for a stable release. Renaming the DMG means
 regenerating the `.sha256`, because the checksum line must name the file exactly.
 
 ## Preview locally

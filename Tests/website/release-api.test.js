@@ -98,11 +98,18 @@ const cases = [
   ["newer stable hides an older pre-release", { releases: [rel({}), rel({ tag_name: "v0.7.0-beta.1", prerelease: true, published_at: "2026-11-01T00:00:00Z" })] }, "ok", true, "passed", false],
   ["javascript: release page URL is dropped", { releases: [rel({ html_url: "javascript:alert(1)" })] }, "ok", true, "passed"],
   ["valid stable release", { releases: [rel({})] }, "ok", true, "passed"],
+  ["versioned DMG name (Pastly-v0.7.2.dmg + .sha256)", { releases: [rel({ assets: [
+    asset({ name: "Pastly-v0.7.2.dmg", browser_download_url: dl("Pastly-v0.7.2.dmg") }),
+    shaAsset({ name: "Pastly-v0.7.2.dmg.sha256", browser_download_url: dl("Pastly-v0.7.2.dmg.sha256") })] })],
+    sha: `${GOOD}  Pastly-v0.7.2.dmg\n` }, "ok", true, "passed", undefined, "Pastly-v0.7.2.dmg"],
+  ["versioned DMG whose checksum names the old generic file", { releases: [rel({ assets: [
+    asset({ name: "Pastly-v0.7.2.dmg", browser_download_url: dl("Pastly-v0.7.2.dmg") }),
+    shaAsset({ name: "Pastly-v0.7.2.dmg.sha256", browser_download_url: dl("Pastly-v0.7.2.dmg.sha256") })] })] }, "ok", false, "checksum-invalid"],
 ];
 
 async function releaseCases() {
   console.log("Release selection and validation");
-  for (const [label, sc, wantStatus, wantOffered, wantCheck, wantExperimental] of cases) {
+  for (const [label, sc, wantStatus, wantOffered, wantCheck, wantExperimental, dmgName = "Pastly.dmg"] of cases) {
     const { mod, downloadHandler } = load({ repo: sc.repo }, simulated(sc));
     const data = await mod.latest();
     const res = fakeRes(); await downloadHandler({}, res);
@@ -110,7 +117,7 @@ async function releaseCases() {
     const check = data.stable ? data.stable.dmgCheck : null;
     let ok = data.status === wantStatus && offered === wantOffered && (wantCheck === undefined || check === wantCheck)
           && !!data.experimental === !!wantExperimental && res.statusCode === 302;
-    if (wantOffered) ok = ok && res.headers.Location === dl("Pastly.dmg") && data.stable.dmg.integrity === "passed" && data.stable.dmg.sha256 === GOOD;
+    if (wantOffered) ok = ok && res.headers.Location === dl(dmgName) && data.stable.dmg.name === dmgName && data.stable.dmg.integrity === "passed" && data.stable.dmg.sha256 === GOOD;
     if (label.startsWith("javascript: release page")) ok = ok && data.stable.url === null;
     if (wantExperimental) ok = ok && data.experimental.prerelease === true && data.experimental.dmg.integrity === "passed";
     report(ok, label, `status=${data.status} check=${check} /download→${offered ? "DMG" : "#download"}${data.experimental ? " +experimental" : ""}`);

@@ -147,9 +147,9 @@ Every feature, setting and shortcut is described in detail in the **[feature gui
 
 ## Installation
 
-1. Download `Pastly.dmg` from the [Releases](https://github.com/sp201004/Pastly/releases) page. Optionally verify it with the attached `Pastly.dmg.sha256`:
+1. Download the DMG, named after the version (for example `Pastly-v0.7.1.dmg`), from the [Releases](https://github.com/sp201004/Pastly/releases) page. Optionally verify it with the attached `.sha256` file of the same name:
    ```bash
-   shasum -a 256 -c Pastly.dmg.sha256
+   shasum -a 256 -c Pastly-v0.7.1.dmg.sha256
    ```
 2. Open the DMG and drag **Pastly** onto **Applications**.
 3. **First launch.** Pastly isn't notarized by Apple yet, so macOS blocks the first launch:
@@ -273,7 +273,7 @@ No password is stored in the repository. The new keychain is appended to your ke
 
 That signature is for development only; Gatekeeper rejects it on other Macs.
 
-**Release DMG.** `./Scripts/release.sh` builds `build/Pastly.dmg` and `build/Pastly.dmg.sha256`, mounts the DMG, verifies it and prints a report (architecture, minimum macOS, signature, notarization, Gatekeeper). With a *Developer ID Application* certificate and a `notarytool` keychain profile named `pastly-notary`, it also signs with the hardened runtime, notarizes and staples. Without them, the report states plainly that the build isn't notarized. See [RELEASING.md](RELEASING.md) for the release steps, the current signing limits and the notarization plan.
+**Release DMG.** `./Scripts/release.sh` builds `build/Pastly-v<version>.dmg` and its `.sha256` (the name and version come from `Resources/Info.plist`, for example `Pastly-v0.7.1.dmg`), mounts the DMG, verifies it and prints a report (architecture, minimum macOS, signature, notarization, Gatekeeper). With a *Developer ID Application* certificate and a `notarytool` keychain profile named `pastly-notary`, it also signs with the hardened runtime, notarizes and staples. Without them, the report states plainly that the build isn't notarized. See [RELEASING.md](RELEASING.md) for the release steps, the current signing limits and the notarization plan.
 
 ## Technology
 
