@@ -101,6 +101,7 @@ final class ClipStore: ObservableObject {
                 it.imageWidth = p.imageWidth
                 it.imageHeight = p.imageHeight
             }
+            if (it.customTitle ?? "").isEmpty, let title = p.suggestedTitle { it.customTitle = title }   // e.g. a screenshot's name
             items.remove(at: idx)
             items.insert(it, at: 0)
             db?.save(it)
@@ -114,12 +115,13 @@ final class ClipStore: ObservableObject {
             images.save(bytes, name: name)
             imageName = name
         }
-        let it = ClipItem(type: p.type, primaryUTI: p.primaryUTI, plainText: p.plainText,
+        var it = ClipItem(type: p.type, primaryUTI: p.primaryUTI, plainText: p.plainText,
                           rtfData: p.rtf, htmlData: p.html, imagePath: imageName,
                           imageWidth: p.imageWidth, imageHeight: p.imageHeight,
                           fileURLs: p.fileURLs, colorHex: p.colorHex,
                           sourceAppBundleID: bundleID, sourceAppName: appName,
                           createdAt: date, lastUsedAt: date, contentHash: p.contentHash)
+        it.customTitle = p.suggestedTitle   // e.g. "Screenshot 2026-11-19 at 2.42.59 PM"; nil for other clips
         items.insert(it, at: 0)
         hashIndex[it.contentHash] = it.id
         db?.save(it)

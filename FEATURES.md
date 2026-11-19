@@ -1,6 +1,6 @@
 # Pastly Features
 
-This document describes every feature in the current version of Pastly (0.7.0): what it does, how it works and how to use it. It is written for users and contributors, and every behavior described here is taken from the source code. Source files are listed at the end of each section for contributors who want to read further.
+This document describes every feature in the current version of Pastly (0.7.1): what it does, how it works and how to use it. It is written for users and contributors, and every behavior described here is taken from the source code. Source files are listed at the end of each section for contributors who want to read further.
 
 Features that are planned but **not built yet** are listed separately in [Not available yet](#not-available-yet).
 
@@ -109,6 +109,8 @@ Pastly sorts every clip into one of five kinds. **Code** is shown as its own tab
 | **Files** | Files copied in Finder (⌘C) or other apps | References to the files (not copies of them); for image files also the image, for videos and audio a thumbnail |
 | **Code** (tab) | Text that scores as code: valid JSON, typical keywords, lines ending in `;` `{` `}`, indentation; prose lowers the score | Same as Text |
 
+**Screenshots** taken with ⇧⌘3, ⇧⌘4 or ⇧⌘5 are recognized by the tag macOS puts in them and get the macOS name, such as *Screenshot 2026-11-19 at 2.42.59 PM*; other images show their size (for example *1600×900*). A name you give a clip yourself is never replaced.
+
 Examples:
 
 - Copying `https://example.com/docs` gives a **link**. Copying `See https://example.com/docs` gives **text** (it contains a link but isn't one).
@@ -202,6 +204,8 @@ If that isn't possible, the clip stays on the clipboard and a short message tell
 When you select a clip with a click (in either click mode), ↑/↓ or ⌘/⇧-click, Pastly puts it on the clipboard shortly afterwards, in the current paste format. So **⌘V pastes your selection** both inside Pastly and in the app you switch to.
 
 When you reopen Pastly, it selects the clip that is on the clipboard, if Pastly put it there and nothing newer has been copied since. Otherwise it selects the newest clip.
+
+**Images paste as files where files are expected.** An image clip on the clipboard also offers a real image file, named like the clip. So ⌘V in Finder or any folder creates the file (for example `Screenshot 2026-11-19 at 2.42.59 PM.png`), while apps that take pictures still receive the image itself. The file is only written when an app asks for it.
 
 ### Pasting several clips
 
@@ -824,4 +828,4 @@ These are **planned or under consideration** and are **not** part of the current
 
 ---
 
-*This document describes Pastly 0.7.0. If you find a difference between this document and the app, please [open an issue](https://github.com/sp201004/Pastly/issues).*
+*This document describes Pastly 0.7.1. If you find a difference between this document and the app, please [open an issue](https://github.com/sp201004/Pastly/issues).*

@@ -2,6 +2,10 @@
 
 All notable changes to Pastly are listed here.
 
+## 0.7.1 — 2026-11-19
+- Screenshots get the macOS name: a screenshot taken with ⇧⌘3, ⇧⌘4 or ⇧⌘5 now shows as "Screenshot 2026-11-19 at 2.42.59 PM" (in your Mac's 12- or 24-hour format) instead of its pixel size. Other images still show their size, and a name you gave a clip is never replaced.
+- ⌘V of an image clip in Finder (or any folder) now creates the image file, named like the clip — as dragging already did. Other apps still receive the image itself; the file is only written when an app asks for it.
+
 ## 0.7.0 — 2026-11-18
 - New tagline: "A beautiful, native clipboard manager for macOS." (Settings → About and the website).
 - Backups use the `.pastly` file extension. Automatic backups only remove Pastly's own `.pastly` files when the keep limit is reached.

@@ -68,6 +68,8 @@ struct ParsedClip {
     var fileURLs: [URL] = []
     var colorHex: String?
     var contentHash: String
+    /// Name to show for a new clip, e.g. the macOS name of a screenshot ("Screenshot 2026-11-19 at 2.42.59 PM").
+    var suggestedTitle: String? = nil
 }
 
 /// Loads image files (e.g. copied in Finder) safely: checks the real content type, keeps the
@@ -242,7 +244,29 @@ enum ClipItemParser {
             bytes = encoded
             ext = "png"
         }
-        return ParsedClip(type: .image, primaryUTI: uti.identifier, pngData: bytes, imageExtension: ext,
-                          imageWidth: w > 0 ? w : cg.width, imageHeight: h > 0 ? h : cg.height, contentHash: hash)
+        var clip = ParsedClip(type: .image, primaryUTI: uti.identifier, pngData: bytes, imageExtension: ext,
+                              imageWidth: w > 0 ? w : cg.width, imageHeight: h > 0 ? h : cg.height, contentHash: hash)
+        if isMacScreenshot(src) { clip.suggestedTitle = screenshotName(for: Date()) }
+        return clip
+    }
+
+    /// macOS marks its screenshots (⇧⌘3, ⇧⌘4, ⇧⌘5 — also when they go to the clipboard) with the EXIF
+    /// comment "Screenshot". Other copied images don't carry it.
+    static func isMacScreenshot(_ src: CGImageSource) -> Bool {
+        let props = CGImageSourceCopyPropertiesAtIndex(src, 0, nil) as? [CFString: Any]
+        let exif = props?[kCGImagePropertyExifDictionary] as? [CFString: Any]
+        return (exif?[kCGImagePropertyExifUserComment] as? String) == "Screenshot"
+    }
+
+    /// The name macOS gives a screenshot taken at `date`, e.g. "Screenshot 2026-11-19 at 2.42.59 PM"
+    /// (the time in the Mac's own 12- or 24-hour format, with dots instead of colons, like Finder shows it).
+    static func screenshotName(for date: Date, locale: Locale = .autoupdatingCurrent) -> String {
+        let day = DateFormatter()
+        day.calendar = Calendar(identifier: .gregorian); day.locale = Locale(identifier: "en_US_POSIX")
+        day.dateFormat = "yyyy-MM-dd"
+        let time = DateFormatter()
+        time.locale = locale
+        time.dateFormat = DateFormatter.dateFormat(fromTemplate: "jms", options: 0, locale: locale) ?? "HH:mm:ss"
+        return "Screenshot \(day.string(from: date)) at \(time.string(from: date).replacingOccurrences(of: ":", with: "."))"
     }
 }

@@ -229,10 +229,20 @@ final class PasteService {
             it.setString(text, forType: .string)
             pbItems.append(it)
         } else {
+            var providers: [ImageFileProvider] = []
             for item in items {
-                pbItems += pasteboardItems(for: item, plainText: plainText, transform: transform,
-                                           images: images ?? ClipStore.shared.images)
+                let store = images ?? ClipStore.shared.images
+                let its = pasteboardItems(for: item, plainText: plainText, transform: transform, images: store)
+                // Image clips also offer a real file (named like the clip), as dragging does, so ⌘V works in
+                // Finder and other places that take files. It's written only when an app asks for it.
+                if item.type == .image, item.imagePath != nil, let first = its.first {
+                    let provider = ImageFileProvider(item: item, images: store)
+                    first.setDataProvider(provider, forTypes: [.fileURL])
+                    providers.append(provider)
+                }
+                pbItems += its
             }
+            fileProviders[pb.name.rawValue] = providers   // kept alive while this content is on that pasteboard
         }
         if pbItems.isEmpty { pbItems.append(NSPasteboardItem()) }
         pbItems[0].setData(Data("1".utf8), forType: .pastlyInternal)
@@ -245,6 +255,8 @@ final class PasteService {
         if pb === pasteboard { lastChoice = Choice(ids: items.map(\.id), changeCount: pb.changeCount) }
         return expected
     }
+
+    private var fileProviders: [String: [ImageFileProvider]] = [:]
 
     /// Native pasteboard representations of a clip (used by paste and by dragging).
     func pasteboardItems(for item: ClipItem, plainText: Bool, transform: TextTransform?,
@@ -476,5 +488,24 @@ enum Toast {
         let work = DispatchWorkItem { panel.orderOut(nil) }
         hideWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: work)
+    }
+}
+
+
+/// Supplies the image file of an image clip on demand (when an app such as Finder asks for a file on ⌘V).
+/// The file is the same one dragging uses (`DragFiles`), named after the clip, e.g. "Screenshot … PM.png".
+final class ImageFileProvider: NSObject, NSPasteboardItemDataProvider {
+    private let item: ClipItem
+    private let images: ImageStore
+
+    init(item: ClipItem, images: ImageStore) {
+        self.item = item
+        self.images = images
+    }
+
+    func pasteboard(_ pasteboard: NSPasteboard?, item pbItem: NSPasteboardItem, provideDataForType type: NSPasteboard.PasteboardType) {
+        guard type == .fileURL, let name = item.imagePath, let data = images.data(for: name),
+              let url = DragFiles.file(for: item, data: data, ext: (name as NSString).pathExtension) else { return }
+        pbItem.setString(url.absoluteString, forType: .fileURL)
     }
 }

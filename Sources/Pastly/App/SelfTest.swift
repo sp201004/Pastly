@@ -623,6 +623,57 @@ enum SelfTest {
                   "Dragging a JPEG clip offers the JPEG itself")
         }
 
+        print("Screenshots (macOS name, ⌘V as a file)")
+        do {
+            let cg = NSBitmapImageRep(data: DemoData.makeArtwork(width: 200, height: 120))!.cgImage!
+            func png(screenshot: Bool) -> Data {
+                let out = NSMutableData()
+                let dest = CGImageDestinationCreateWithData(out, UTType.png.identifier as CFString, 1, nil)!
+                let props: [CFString: Any] = screenshot ? [kCGImagePropertyExifDictionary: [kCGImagePropertyExifUserComment: "Screenshot"]] : [:]
+                CGImageDestinationAddImage(dest, cg, props as CFDictionary)
+                CGImageDestinationFinalize(dest)
+                return out as Data
+            }
+            var c = DateComponents(); c.year = 2026; c.month = 11; c.day = 19; c.hour = 14; c.minute = 42; c.second = 59
+            let date = Calendar(identifier: .gregorian).date(from: c)!
+            let n12 = ClipItemParser.screenshotName(for: date, locale: Locale(identifier: "en_US"))
+            check(n12.hasPrefix("Screenshot 2026-11-19 at 2.42.59") && n12.hasSuffix("PM"), "Screenshot name like Finder's, 12-hour clock (\(n12))")
+            let n24 = ClipItemParser.screenshotName(for: date, locale: Locale(identifier: "en_GB"))
+            check(n24 == "Screenshot 2026-11-19 at 14.42.59", "Screenshot name like Finder's, 24-hour clock (\(n24))")
+
+            let shot = ClipItemParser.parseImage(png(screenshot: true), type: UTType.png.identifier)
+            let plain = ClipItemParser.parseImage(png(screenshot: false), type: UTType.png.identifier)
+            check(shot?.suggestedTitle?.hasPrefix("Screenshot ") == true, "A macOS screenshot (EXIF comment “Screenshot”) gets the macOS name")
+            check(plain != nil && plain?.suggestedTitle == nil, "Other copied images keep showing their size")
+
+            let dir = tmp.appendingPathComponent("screenshots")
+            let st = ClipStore(directory: dir)
+            let item = st.ingest(shot!, bundleID: nil, appName: nil)
+            check(item.customTitle == shot!.suggestedTitle && ClipStore(directory: dir).item(id: item.id)?.customTitle == item.customTitle,
+                  "The screenshot name is saved with the clip")
+            let old = ClipStore(directory: tmp.appendingPathComponent("screenshots-old"))
+            let untitled = old.ingest(plain!, bundleID: nil, appName: nil)
+            let recopied = old.ingest(shot!, bundleID: nil, appName: nil)
+            check(untitled.customTitle == nil && recopied.id == untitled.id && recopied.customTitle == shot!.suggestedTitle,
+                  "An untitled copy of the same screenshot gets the name when copied again")
+            old.setCustomTitle(recopied.id, "My title")
+            check(old.ingest(shot!, bundleID: nil, appName: nil).customTitle == "My title", "A title you gave a clip is never replaced")
+
+            let out = NSPasteboard(name: NSPasteboard.Name("io.github.sp201004.pastly.selftest.shot.\(UUID().uuidString)"))
+            PasteService.shared.write(item, images: st.images, to: out)
+            let types = Set((out.types ?? []).map(\.rawValue))
+            check(types.contains("public.png") && types.contains("public.tiff") && types.contains("public.file-url"),
+                  "⌘V of an image clip offers the image and a file (Finder pastes the file)")
+            let file = out.string(forType: .fileURL).flatMap(URL.init(string:))
+            check(file.map { FileManager.default.fileExists(atPath: $0.path) && $0.lastPathComponent == item.customTitle! + ".png"
+                             && (try? Data(contentsOf: $0)) == st.images.data(for: item.imagePath!) } == true,
+                  "The pasted file is named like the screenshot and holds the original image")
+            let text = st.ingest(ClipItemParser.parseText("Just text", rtf: nil, html: nil, trimWhitespace: false), bundleID: nil, appName: nil)
+            PasteService.shared.write(text, images: st.images, to: out)
+            check(!(out.types ?? []).contains(.fileURL), "Text clips are still pasted as text only (no file)")
+            out.releaseGlobally()
+        }
+
         print("Native drag content")
         do {
             let st = ClipStore(directory: tmp.appendingPathComponent("dragnative"))
