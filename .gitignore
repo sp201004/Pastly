@@ -3,6 +3,9 @@
 build/
 *.iconset/
 *.dmg
+*.dmg.sha256
+*.gitbundle
+backups/
 *.app/
 *.dSYM/
 *.xcarchive/

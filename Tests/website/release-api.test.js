@@ -10,6 +10,7 @@ const { execFileSync } = require("child_process");
 
 const API = path.join(__dirname, "..", "..", "website", "api");
 const R = "owner/Pastly";
+const DMG_NAME = "Pastly-v0.7.1.dmg";   // release.sh naming: <App>-v<version>.dmg
 const CDN = "https://release-assets.githubusercontent.com/x";
 const dl = (n) => `https://github.com/${R}/releases/download/v0.7.0/${n}`;
 let failures = 0, total = 0;
@@ -42,8 +43,8 @@ function fakeRes() {
 
 const DMG = Buffer.alloc(150000, 7);
 const GOOD = crypto.createHash("sha256").update(DMG).digest("hex");
-const asset = (o) => Object.assign({ id: 1, name: "Pastly.dmg", state: "uploaded", size: DMG.length, updated_at: "t1", browser_download_url: dl("Pastly.dmg") }, o);
-const shaAsset = (o) => Object.assign({ id: 2, name: "Pastly.dmg.sha256", state: "uploaded", size: 80, updated_at: "t1", browser_download_url: dl("Pastly.dmg.sha256") }, o);
+const asset = (o) => Object.assign({ id: 1, name: DMG_NAME, state: "uploaded", size: DMG.length, updated_at: "t1", browser_download_url: dl(DMG_NAME) }, o);
+const shaAsset = (o) => Object.assign({ id: 2, name: DMG_NAME + ".sha256", state: "uploaded", size: 80, updated_at: "t1", browser_download_url: dl(DMG_NAME + ".sha256") }, o);
 const rel = (o) => Object.assign({ tag_name: "v0.7.0", name: "Pastly 0.7.0", published_at: "2026-11-20T10:00:00Z", draft: false, prerelease: false,
   html_url: `https://github.com/${R}/releases/tag/v0.7.0`, body: "<script>alert(1)</script> notes",
   zipball_url: `https://api.github.com/repos/${R}/zipball/v0.7.0`, tarball_url: `https://api.github.com/repos/${R}/tarball/v0.7.0`,
@@ -60,7 +61,7 @@ function simulated(sc) {
     if (url.startsWith("https://github.com/")) return new Response(null, { status: 302, headers: { location: sc.redirect || CDN + "?f=" + encodeURIComponent(url) } });
     if (url.startsWith(CDN)) {
       const f = decodeURIComponent(url.split("?f=")[1] || "");
-      if (f.endsWith(".sha256")) return new Response(sc.sha ?? `${GOOD}  Pastly.dmg\n`, { status: 200 });
+      if (f.endsWith(".sha256")) return new Response(sc.sha ?? `${GOOD}  ${DMG_NAME}\n`, { status: 200 });
       return new Response(sc.dmgBytes ?? DMG, { status: 200 });
     }
     return new Response("not GitHub", { status: 200 });   // any other host — must never be used
@@ -90,14 +91,18 @@ const cases = [
   ["redirect to an untrusted host", { releases: [rel({})], redirect: "https://evil.example/payload.dmg" }, "ok", false, "checksum-unavailable"],
   ["github.com redirect outside this repository", { releases: [rel({})], redirect: "https://github.com/someone/else/raw/main/evil.dmg" }, "ok", false, "checksum-unavailable"],
   ["no .sha256 asset", { releases: [rel({ assets: [asset()] })] }, "ok", false, "checksum-missing"],
-  ["incorrect published checksum", { releases: [rel({})], sha: `${"b".repeat(64)}  Pastly.dmg` }, "ok", false, "hash-mismatch"],
-  ["DMG download timeout", { releases: [rel({})], hang: CDN + "?f=" + encodeURIComponent(dl("Pastly.dmg")) }, "ok", false, "hash-timeout"],
+  ["incorrect published checksum", { releases: [rel({})], sha: `${"b".repeat(64)}  ${DMG_NAME}` }, "ok", false, "hash-mismatch"],
+  ["DMG download timeout", { releases: [rel({})], hang: CDN + "?f=" + encodeURIComponent(dl(DMG_NAME)) }, "ok", false, "hash-timeout"],
   ["draft release only", { releases: [rel({ draft: true })] }, "no-release", false],
   ["pre-release only → experimental, never the default", { releases: [rel({ prerelease: true })] }, "ok", false, null, true],
   ["older stable + newer pre-release kept separate", { releases: [rel({ tag_name: "v0.8.0-beta.1", prerelease: true, published_at: "2026-12-01T00:00:00Z" }), rel({})] }, "ok", true, "passed", true],
   ["newer stable hides an older pre-release", { releases: [rel({}), rel({ tag_name: "v0.7.0-beta.1", prerelease: true, published_at: "2026-11-01T00:00:00Z" })] }, "ok", true, "passed", false],
   ["javascript: release page URL is dropped", { releases: [rel({ html_url: "javascript:alert(1)" })] }, "ok", true, "passed"],
   ["valid stable release", { releases: [rel({})] }, "ok", true, "passed"],
+  ["legacy generic name Pastly.dmg (as on the published v0.7.0 release) still works", { releases: [rel({ assets: [
+    asset({ name: "Pastly.dmg", browser_download_url: dl("Pastly.dmg") }),
+    shaAsset({ name: "Pastly.dmg.sha256", browser_download_url: dl("Pastly.dmg.sha256") })] })],
+    sha: `${GOOD}  Pastly.dmg\n` }, "ok", true, "passed", undefined, "Pastly.dmg"],
   ["versioned DMG name (Pastly-v0.7.2.dmg + .sha256)", { releases: [rel({ assets: [
     asset({ name: "Pastly-v0.7.2.dmg", browser_download_url: dl("Pastly-v0.7.2.dmg") }),
     shaAsset({ name: "Pastly-v0.7.2.dmg.sha256", browser_download_url: dl("Pastly-v0.7.2.dmg.sha256") })] })],
@@ -109,7 +114,7 @@ const cases = [
 
 async function releaseCases() {
   console.log("Release selection and validation");
-  for (const [label, sc, wantStatus, wantOffered, wantCheck, wantExperimental, dmgName = "Pastly.dmg"] of cases) {
+  for (const [label, sc, wantStatus, wantOffered, wantCheck, wantExperimental, dmgName = DMG_NAME] of cases) {
     const { mod, downloadHandler } = load({ repo: sc.repo }, simulated(sc));
     const data = await mod.latest();
     const res = fakeRes(); await downloadHandler({}, res);
@@ -131,29 +136,29 @@ async function fixtureCases() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pastly-release-test-"));
   try {
     const file = (n) => path.join(dir, n);
-    fs.writeFileSync(file("Pastly.dmg"), crypto.randomBytes(3 * 1024 * 1024));
-    // The system's own tool computes the expected value: "<hash>  Pastly.dmg\n" (shasum on macOS, sha256sum on Linux).
+    fs.writeFileSync(file(DMG_NAME), crypto.randomBytes(3 * 1024 * 1024));
+    // The system's own tool computes the expected value: "<hash>  <DMG_NAME>\n" (shasum on macOS, sha256sum on Linux).
     let good;
-    try { good = execFileSync("shasum", ["-a", "256", "Pastly.dmg"], { cwd: dir }).toString(); }
-    catch { good = execFileSync("sha256sum", ["Pastly.dmg"], { cwd: dir }).toString(); }
+    try { good = execFileSync("shasum", ["-a", "256", DMG_NAME], { cwd: dir }).toString(); }
+    catch { good = execFileSync("sha256sum", [DMG_NAME], { cwd: dir }).toString(); }
     const hash = good.split(" ")[0];
-    const tampered = fs.readFileSync(file("Pastly.dmg")); tampered[1000] ^= 0xff; fs.writeFileSync(file("tampered.dmg"), tampered);
-    fs.writeFileSync(file("truncated.dmg"), fs.readFileSync(file("Pastly.dmg")).subarray(0, 3000000));
+    const tampered = fs.readFileSync(file(DMG_NAME)); tampered[1000] ^= 0xff; fs.writeFileSync(file("tampered.dmg"), tampered);
+    fs.writeFileSync(file("truncated.dmg"), fs.readFileSync(file(DMG_NAME)).subarray(0, 3000000));
     const sums = {
-      "good.sha256": good, "binary.sha256": `${hash} *Pastly.dmg\n`, "wronghash.sha256": `${"0".repeat(64)}  Pastly.dmg\n`,
+      "good.sha256": good, "binary.sha256": `${hash} *${DMG_NAME}\n`, "wronghash.sha256": `${"0".repeat(64)}  ${DMG_NAME}\n`,
       "wrongname.sha256": `${hash}  Other.dmg\n`, "malformed.sha256": "not a checksum\n", "twolines.sha256": good + good,
     };
     for (const [n, t] of Object.entries(sums)) fs.writeFileSync(file(n), t);
 
     const fixtures = [
-      ["correct DMG + shasum's checksum file", "Pastly.dmg", "good.sha256", "passed"],
-      ["correct DMG + binary-mode (*) checksum line", "Pastly.dmg", "binary.sha256", "passed"],
+      ["correct DMG + shasum's checksum file", DMG_NAME, "good.sha256", "passed"],
+      ["correct DMG + binary-mode (*) checksum line", DMG_NAME, "binary.sha256", "passed"],
       ["DMG with one byte changed", "tampered.dmg", "good.sha256", "hash-mismatch"],
       ["DMG shorter than GitHub's stated size", "truncated.dmg", "good.sha256", "size-mismatch", 3 * 1024 * 1024],
-      ["wrong published hash", "Pastly.dmg", "wronghash.sha256", "hash-mismatch"],
-      ["checksum names another file", "Pastly.dmg", "wrongname.sha256", "checksum-invalid"],
-      ["malformed checksum file", "Pastly.dmg", "malformed.sha256", "checksum-invalid"],
-      ["checksum file with two lines", "Pastly.dmg", "twolines.sha256", "checksum-invalid"],
+      ["wrong published hash", DMG_NAME, "wronghash.sha256", "hash-mismatch"],
+      ["checksum names another file", DMG_NAME, "wrongname.sha256", "checksum-invalid"],
+      ["malformed checksum file", DMG_NAME, "malformed.sha256", "checksum-invalid"],
+      ["checksum file with two lines", DMG_NAME, "twolines.sha256", "checksum-invalid"],
     ];
     for (const [label, dmgFile, shaFile, want, statedSize] of fixtures) {
       const size = (n) => fs.statSync(file(n)).size;
@@ -162,8 +167,8 @@ async function fixtureCases() {
         if (u.hostname === "api.github.com") return new Response(JSON.stringify([rel({ assets: [
           asset({ size: statedSize ?? size(dmgFile), updated_at: dmgFile }), shaAsset({ size: size(shaFile), updated_at: shaFile })] })]), { status: 200 });
         if (u.hostname === "github.com") return new Response(null, { status: 302, headers: { location: `${CDN}/${path.basename(u.pathname)}` } });
-        if (url === `${CDN}/Pastly.dmg`) return new Response(fs.readFileSync(file(dmgFile)), { status: 200 });
-        if (url === `${CDN}/Pastly.dmg.sha256`) return new Response(fs.readFileSync(file(shaFile)), { status: 200 });
+        if (url === `${CDN}/${DMG_NAME}`) return new Response(fs.readFileSync(file(dmgFile)), { status: 200 });
+        if (url === `${CDN}/${DMG_NAME}.sha256`) return new Response(fs.readFileSync(file(shaFile)), { status: 200 });
         return undefined;
       });
       const s = (await mod.latest()).stable;
@@ -194,7 +199,7 @@ async function cacheAndHandlers() {
     && res.body.stable.dmg.integrity === "passed" && res.body.notarized === false,
     "/api/latest: 200, cached 5 min, nosniff, not notarized", res.headers["Cache-Control"]);
   const d = fakeRes(); await downloadHandler({}, d);
-  report(d.statusCode === 302 && d.headers.Location === dl("Pastly.dmg"), "/download: 302 to the checked DMG");
+  report(d.statusCode === 302 && d.headers.Location === dl(DMG_NAME), "/download: 302 to the checked DMG");
 
   const down = load({}, simulated({ api: { status: 500 } }));
   const r2 = fakeRes(); await down.latestHandler({}, r2);
