@@ -14,7 +14,7 @@ Everything you copy — text, links, code, colors, images, files — kept on you
 [![License: MIT](https://img.shields.io/badge/License-MIT-17b7d6)](LICENSE)
 [![Dependencies: none](https://img.shields.io/badge/dependencies-none-2ea44f)](Package.swift)
 
-[Features](#features) · [Full feature guide](FEATURES.md) · [Install](#installation) · [Usage](#usage) · [Build](#build-from-source) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · Website (coming soon)
+[Features](#features) · [Full feature guide](FEATURES.md) · [Install](#installation) · [Usage](#usage) · [Build](#build-from-source) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Website](https://pastly-app.vercel.app)
 
 <br>
 
